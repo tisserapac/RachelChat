@@ -12,3 +12,13 @@
 
 Start FastAPI server
 `$ uvicorn main:app --reload`
+
+
+
+Front End
+
+yarn create vite .
+
+yarn --exact
+
+npx tailwindcss init -p
