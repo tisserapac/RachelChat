@@ -8,6 +8,7 @@ from decouple import config
 
 # Custom function imports
 from functions.openai_request import convert_audio_to_text, get_chat_response
+from functions.database import store_message, reset_messages
 
 
 # Initialting the App
@@ -36,6 +37,12 @@ app.add_middleware(
 async def check_health():
     return {"message": "Healthy"}
 
+# Reset messages
+@app.get("/reset")
+async def reset_conversation():
+    reset_messages()
+    return {"message": "Conversation reset!"}
+
 # Post bot response
 # Note: Not playing in browser when using post request
 # @app.post("/post_audio/")
@@ -56,5 +63,10 @@ async def get_audio():
     
     # Get chat response
     chat_response = get_chat_response(message_decoded)
+
+    # Store the message
+    store_message(message_decoded, chat_response)
+
+    return chat_response
 
     return "Done"

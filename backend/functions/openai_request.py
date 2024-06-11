@@ -37,9 +37,10 @@ def get_chat_response(message_input):
             # frequency_penalty=0,
             # presence_penalty=0,
         )
+        print("response --->")
         print(response)
         message_text =  response["choices"][0]["message"]["content"]
         return message_text 
     except Exception as e:
-        print(e)
+        print("get_chat_response ---> " + e)
         return
