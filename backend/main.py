@@ -9,6 +9,7 @@ from decouple import config
 # Custom function imports
 from functions.openai_request import convert_audio_to_text, get_chat_response
 from functions.database import store_message, reset_messages
+from functions.text_to_speech import convert_text_to_speech
 
 
 # Initialting the App
@@ -64,9 +65,23 @@ async def get_audio():
     # Get chat response
     chat_response = get_chat_response(message_decoded)
 
+    # Gaurd: Ensure message decoded
+    if not chat_response:
+        return HTTPException(status_code=400, detail="Failed to get chat response!")
+
     # Store the message
     store_message(message_decoded, chat_response)
 
-    return chat_response
+    # Convert chat response to audio
+    audio_output = convert_text_to_speech(chat_response)
 
-    return "Done"
+    # Gaurd: Ensure message decoded
+    if not audio_output:
+        return HTTPException(status_code=400, detail="Failed to get ElevenLabs audio response!")
+    
+    # Create a generator that yields chunks of data
+    def iterfile():
+        yield audio_output
+
+    # Return the audio file
+    return StreamingResponse(iterfile(), media_type="audio/mpeg")

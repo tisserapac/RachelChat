@@ -8,7 +8,7 @@
 
 `$ source venv/bin/activate`
 
-`(venv) $` 
+`(venv) $`
 
 `$ pip3 install openai==0.27.0`
 
@@ -16,17 +16,22 @@
 
 `% pip3 install "uvicorn[standard]"`
 
-
 ## Start FastAPI server
 
 `$ uvicorn main:app --reload`
 
+## Front End
 
+`yarn create vite .`
 
-Front End
+- Copy the exact package.json file provided in thecourse. Then to install the exact package versions run,
 
-yarn create vite .
+`yarn --exact`
 
-yarn --exact
+- Follow the instructionson the tailwind documentation to configure tailwind.
 
-npx tailwindcss init -p
+`npx tailwindcss init -p`
+
+## ElevenLabs
+
+- [ElevenLabs Documentation](https://link-url-here.org)
