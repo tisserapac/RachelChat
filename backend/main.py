@@ -8,7 +8,7 @@ from decouple import config
 
 # Custom function imports
 from functions.openai_request import convert_audio_to_text, get_chat_response
-from functions.database import store_message, reset_messages
+from functions.database import store_messages, reset_messages
 from functions.text_to_speech import convert_text_to_speech
 
 
@@ -50,43 +50,44 @@ async def reset_conversation():
 # async def post_audio(File: UploadFile = File(...)):
 #     print("hello")
 
-@app.post("/post_audio/")
+# Post bot response
+# Note: Not playing back in browser when using post request.
+@app.post("/post-audio/")
 async def post_audio(file: UploadFile = File(...)):
-    # Get audio file
-    #audio_input = open("voice.mp3", "rb")
 
-    # Save file from frontend
-    with open(file.filname, "wb") as buffer:
+    # Convert audio to text - production
+    # Save the file temporarily
+    with open(file.filename, "wb") as buffer:
         buffer.write(file.file.read())
-    audio_input = open(file.filname, "rb")
+    audio_input = open(file.filename, "rb")
 
     # Decode audio
     message_decoded = convert_audio_to_text(audio_input)
 
-    # Gaurd: Ensure message decoded
+    # Guard: Ensure output
     if not message_decoded:
-        return HTTPException(status_code=400, detail="Failed to decode the audio!")
-    
+        raise HTTPException(status_code=400, detail="Failed to decode audio")
+
     # Get chat response
     chat_response = get_chat_response(message_decoded)
 
-    # Gaurd: Ensure message decoded
-    if not chat_response:
-        return HTTPException(status_code=400, detail="Failed to get chat response!")
+    # Store messages
+    store_messages(message_decoded, chat_response)
 
-    # Store the message
-    store_message(message_decoded, chat_response)
+    # Guard: Ensure output
+    if not chat_response:
+        raise HTTPException(status_code=400, detail="Failed chat response")
 
     # Convert chat response to audio
     audio_output = convert_text_to_speech(chat_response)
 
-    # Gaurd: Ensure message decoded
+    # Guard: Ensure output
     if not audio_output:
-        return HTTPException(status_code=400, detail="Failed to get ElevenLabs audio response!")
-    
+        raise HTTPException(status_code=400, detail="Failed audio output")
+
     # Create a generator that yields chunks of data
     def iterfile():
         yield audio_output
 
-    # Return the audio file
+    # Use for Post: Return output audio
     return StreamingResponse(iterfile(), media_type="application/octet-stream")

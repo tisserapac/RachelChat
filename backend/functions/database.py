@@ -44,7 +44,7 @@ def get_recent_messages():
     return messages
 
 # Store message
-def store_message(request_message, response_massage):
+def store_messages(request_message, response_massage):
     # Define the file name and lear instructions
     file_name = "stored_data.json"
 
